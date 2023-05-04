@@ -166,28 +166,32 @@ It's [available on Hex](https://hex.pm/packages/logger_json), the package can be
   end
   ```
 
-  2. Set configuration in your `config/config.exs`:
+## Configuration
+
+### 1. configure `LoggerJSON`
 
   ```ex
+  # config/config.exs
   config :logger_json, :backend,
     metadata: :all,
     json_encoder: Jason,
     formatter: LoggerJSON.Formatters.GoogleCloudLogger
-
   ```
 
-  Some integrations (for eg. Plug) use `metadata` to log request and response parameters. You can reduce log size by replacing `:all` (which means log all metadata) with a list of the ones that you actually need. 
+  Some integrations (eg. Plug) use `metadata` to log request and response parameters. You can reduce log size by replacing `:all` (which means log all metadata) with a list of the ones that you actually need.
 
-  Beware that LoggerJSON always ignores [some metadata keys](https://github.com/Nebo15/logger_json/blob/349c8174886135a02bb16317f76beac89d1aa20d/lib/logger_json.ex#L46), but formatters like `GoogleCloudLogger` and `DatadogLogger` still persist those metadata values into a structured output. This behavior is similar to the default Elixir logger backend.
+  Beware that `LoggerJSON` always ignores [some metadata keys](https://github.com/Nebo15/logger_json/blob/349c8174886135a02bb16317f76beac89d1aa20d/lib/logger_json.ex#L46), but formatters like `GoogleCloudLogger` and `DatadogLogger` still persist those metadata values into a structured output. This behavior is similar to the default Elixir logger backend.
 
-  3. Replace default Logger `:console` back-end with `LoggerJSON`:
+### 2. set `LoggerJSON` as default backend of `:logger`
 
   ```ex
   config :logger,
     backends: [LoggerJSON]
   ```
 
-  4. Optionally. Log requests and responses by replacing a `Plug.Logger` in your endpoint with a:
+### 3. (optional) integration with [Plug](https://hex.pm/packages/plug)
+
+  Replacing `Plug.Logger` with:
 
   ```ex
   plug LoggerJSON.Plug
@@ -196,7 +200,18 @@ It's [available on Hex](https://hex.pm/packages/logger_json), the package can be
   `LoggerJSON.Plug` is configured by default to use `LoggerJSON.Plug.MetadataFormatters.GoogleCloudLogger`.
   You can replace it with the `:metadata_formatter` config option.
 
-  5. Optionally. Use Ecto telemetry for additional metadata:
+### 4. (optional) integration with [Phoenix](https://hex.pm/packages/phoenix)
+
+  Disable default phoenix logger:
+
+  ```
+  config :phoenix, :logger, false
+  ```
+
+  And, add `plug LoggerJSON.Plug` to the endpoint.
+
+
+### 5. (optional) intergration with [Ecto](https://hex.pm/packages/ecto)
 
   Attach telemetry handler for Ecto events in `start/2` function in `application.ex`
 
